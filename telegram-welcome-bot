@@ -1,0 +1,56 @@
+import os
+
+from telegram import Update
+from telegram.ext import (
+    Application,
+    MessageHandler,
+    ContextTypes,
+    filters
+)
+
+
+TOKEN = os.environ["BOT_TOKEN"]
+
+
+async def welcome(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    if not update.message:
+        return
+
+    for user in update.message.new_chat_members:
+
+        username = (
+            f"@{user.username}"
+            if user.username
+            else "Tidak ada username"
+        )
+
+        message = (
+            "🎉 <b>SELAMAT DATANG!</b>\n\n"
+            f"👤 Nama: {user.full_name}\n"
+            f"🔹 Username: {username}\n"
+            f"🆔 Telegram ID: <code>{user.id}</code>\n\n"
+            "Selamat bergabung di grup! 🚀"
+        )
+
+        await update.message.reply_text(
+            message,
+            parse_mode="HTML"
+        )
+
+
+app = Application.builder().token(TOKEN).build()
+
+app.add_handler(
+    MessageHandler(
+        filters.StatusUpdate.NEW_CHAT_MEMBERS,
+        welcome
+    )
+)
+
+print("BOT AKTIF")
+
+app.run_polling()
